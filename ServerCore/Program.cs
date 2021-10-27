@@ -4,59 +4,56 @@ using System.Threading.Tasks;
 
 namespace ServerCore
 {
-    class SpinLock
-    {
-        volatile int locked = 0;
+    //class Lock
+    //{
+    //    // bool <- 커널
+    //    AutoResetEvent available = new AutoResetEvent(true);
+    //    //ManualResetEvent available = new ManualResetEvent(true);
 
-        public void Acquire()
-        {
-            while (true)
-            {
-                //int original = Interlocked.Exchange(ref locked, 1);
-                //if (original == 0)
-                //    break;
+    //    public void Acquire()
+    //    {
+    //        available.WaitOne(); // 입장 시도
+    //    }
 
-                // CAS Compare-And-Swap
-                int expected = 0; // 예상하는 값.
-                int desired = 1; // 대입 원하는 값.
-                if (Interlocked.CompareExchange(ref locked, desired, expected) == expected)
-                    break;
-
-                // 쉬다 올께~
-                //Thread.Sleep(1); // 무조건 휴식 => 무조건 1ms 정도 쉬고 싶어요.
-                //Thread.Sleep(0); // 조건부 양보 => 나보다 우선순위가 낮은 애들한테는 양보 불가 => 우선순위가 나보다 같거나 높은 쓰레드가 없으면 다시 본인한테..
-                Thread.Yield(); // 관대한 양보 => 관대하게 양보할테니, 지금 실행이 가능한 쓰레드가 있으면 실행하세요 -> 실행 가능한 애가 없으면 남은 시간 소진.
-            }
-        }
-
-        public void Release()
-        {
-            locked = 0;
-        }
-    }
+    //    public void Release()
+    //    {
+    //        available.Set(); // 문을 열어준다.
+    //    }
+    //}
 
     class Program
     {
         static int num = 0;
-        static SpinLock spinLock = new SpinLock();
+        //static Lock _lock = new Lock();
+
+        // int ThreadId
+        static Mutex _lock = new Mutex();
 
         static void Thread_1()
         {
-            for (int i = 0; i < 1000000; ++i)
+            for (int i = 0; i < 100000; ++i)
             {
-                spinLock.Acquire();
+                //_lock.Acquire();
+                //num++;
+                //_lock.Release();
+
+                _lock.WaitOne();
                 num++;
-                spinLock.Release();
+                _lock.ReleaseMutex();
             }
         }
 
         static void Thread_2()
         {
-            for (int i = 0; i < 1000000; ++i)
+            for (int i = 0; i < 100000; ++i)
             {
-                spinLock.Acquire();
+                //_lock.Acquire();
+                //num--;
+                //_lock.Release();
+
+                _lock.WaitOne();
                 num--;
-                spinLock.Release();
+                _lock.ReleaseMutex();
             }
         }
 
