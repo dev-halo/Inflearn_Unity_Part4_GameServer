@@ -4,71 +4,54 @@ using System.Threading.Tasks;
 
 namespace ServerCore
 {
-    class FastLock
+    class SpinLock
     {
-        public int id;
-    }
+        volatile int locked = 0;
 
-    class SessionManager
-    {
-        static object _lock = new object();
-
-        public static void TestSession()
+        public void Acquire()
         {
-            lock (_lock)
+            while (true)
             {
+                //int original = Interlocked.Exchange(ref locked, 1);
+                //if (original == 0)
+                //    break;
+
+                // CAS Compare-And-Swap
+                int expected = 0; // 예상하는 값.
+                int desired = 1; // 대입 원하는 값.
+                if (Interlocked.CompareExchange(ref locked, desired, expected) == expected)
+                    break;
             }
         }
 
-        public static void Test()
+        public void Release()
         {
-            lock (_lock)
-            {
-                UserManager.TestUser();
-            }
-        }
-    }
-
-    class UserManager
-    {
-        static object _lock = new object();
-
-        public static void Test()
-        {
-            lock (_lock)
-            {
-                SessionManager.TestSession();
-            }
-        }
-
-        public static void TestUser()
-        {
-            lock (_lock)
-            {
-            }
+            locked = 0;
         }
     }
 
     class Program
     {
-        static int number = 0;
-        static object obj = new object();
+        static int num = 0;
+        static SpinLock spinLock = new SpinLock();
 
         static void Thread_1()
         {
-            for (int i = 0; i < 100; ++i)
+            for (int i = 0; i < 1000000; ++i)
             {
-                SessionManager.Test();
+                spinLock.Acquire();
+                num++;
+                spinLock.Release();
             }
         }
 
-        // 데드락 DeadLock
-
         static void Thread_2()
         {
-            for (int i = 0; i < 100; ++i)
+            for (int i = 0; i < 1000000; ++i)
             {
-                UserManager.Test();
+                spinLock.Acquire();
+                num--;
+                spinLock.Release();
             }
         }
 
@@ -76,15 +59,13 @@ namespace ServerCore
         {
             Task t1 = new Task(Thread_1);
             Task t2 = new Task(Thread_2);
+
             t1.Start();
-
-            Thread.Sleep(100);
-
             t2.Start();
 
             Task.WaitAll(t1, t2);
 
-            Console.WriteLine(number);
+            Console.WriteLine(num);
         }
     }
 }
