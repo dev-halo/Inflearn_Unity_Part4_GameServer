@@ -6,38 +6,39 @@ namespace ServerCore
 {
     class Program
     {
-        static object lock1 = new object();
-        static SpinLock lock2 = new SpinLock();
-
-        class Reward
-        {
-
-        }
-
-        // RWLock ReaderWriterLock
-        static ReaderWriterLockSlim lock3 = new ReaderWriterLockSlim();
-
-        static Reward GetRewardById(int id)
-        {
-            lock3.EnterReadLock();
-
-            lock3.ExitReadLock();
-
-            return null;
-        }
-
-        static void AddReward(Reward reward)
-        {
-            lock3.EnterWriteLock();
-
-            lock3.ExitWriteLock();
-        }
+        static volatile int count = 0;
+        static Lock _lock = new Lock();
 
         static void Main(string[] args)
         {
-            lock (lock1)
+            Task t1 = new Task(delegate ()
             {
-            }
+                for (int i = 0; i < 100000; ++i)
+                {
+                    _lock.WriteLock();
+                    _lock.WriteLock();
+                    count++;
+                    _lock.WriteUnlock();
+                    _lock.WriteUnlock();
+                }
+            });
+
+            Task t2 = new Task(delegate ()
+            {
+                for (int i = 0; i < 100000; ++i)
+                {
+                    _lock.WriteLock();
+                    count--;
+                    _lock.WriteUnlock();
+                }
+            });
+
+            t1.Start();
+            t2.Start();
+
+            Task.WaitAll(t1, t2);
+
+            Console.WriteLine(count);
         }
     }
 }
