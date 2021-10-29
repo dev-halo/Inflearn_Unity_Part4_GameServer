@@ -7,12 +7,12 @@ namespace ServerCore
     class Listener
     {
         Socket listenSocket;
-        Action<Socket> onAcceptHandler;
+        Func<Session> sessionFactory;
 
-        public void Init(IPEndPoint endPoint, Action<Socket> onAcceptHandler)
+        public void Init(IPEndPoint endPoint, Func<Session> sessionFactory)
         {
             listenSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            this.onAcceptHandler += onAcceptHandler;
+            this.sessionFactory += sessionFactory;
 
             // 문지기 교육
             listenSocket.Bind(endPoint);
@@ -39,7 +39,9 @@ namespace ServerCore
         {
             if (args.SocketError == SocketError.Success)
             {
-                onAcceptHandler?.Invoke(args.AcceptSocket);
+                Session session = sessionFactory.Invoke();
+                session.Start(args.AcceptSocket);
+                session.OnConnected(args.AcceptSocket.RemoteEndPoint);
             }
             else
                 Console.WriteLine(args.SocketError.ToString());
