@@ -17,7 +17,7 @@ namespace PacketGenerator
         {
             string pdlPath = "../PDL.xml";
 
-            XmlReaderSettings settings = new XmlReaderSettings()
+            XmlReaderSettings settings = new()
             {
                 IgnoreComments = true,
                 IgnoreWhitespace = true
@@ -26,24 +26,21 @@ namespace PacketGenerator
             if (args.Length >= 1)
                 pdlPath = args[0];
 
-            using (XmlReader r = XmlReader.Create(pdlPath, settings))
+            using XmlReader r = XmlReader.Create(pdlPath, settings);
+            r.MoveToContent();
+
+            while (r.Read())
             {
-                r.MoveToContent();
-
-                while (r.Read())
-                {
-                    if (r.Depth == 1 && r.NodeType == XmlNodeType.Element)
-                        ParsePacket(r);
-                    //Console.WriteLine(r.Name + " " + r["name"]);
-                }
-
-                string fileText = string.Format(PacketFormat.fileFormat, packetEnums, genPackets);
-                File.WriteAllText("GenPackets.cs", fileText);
-                string clientManagerText = string.Format(PacketFormat.managerFormat, clientRegister);
-                File.WriteAllText("ClientPacketManager.cs", clientManagerText);
-                string serverManagerText = string.Format(PacketFormat.managerFormat, serverRegister);
-                File.WriteAllText("ServerPacketManager.cs", serverManagerText);
+                if (r.Depth == 1 && r.NodeType == XmlNodeType.Element)
+                    ParsePacket(r);
             }
+
+            string fileText = string.Format(PacketFormat.fileFormat, packetEnums, genPackets);
+            File.WriteAllText("GenPackets.cs", fileText);
+            string clientManagerText = string.Format(PacketFormat.managerFormat, clientRegister);
+            File.WriteAllText("ClientPacketManager.cs", clientManagerText);
+            string serverManagerText = string.Format(PacketFormat.managerFormat, serverRegister);
+            File.WriteAllText("ServerPacketManager.cs", serverManagerText);
         }
 
         public static void ParsePacket(XmlReader r)
@@ -78,8 +75,6 @@ namespace PacketGenerator
         // {3} 멤버 변수 Write
         public static Tuple<string, string, string> ParseMembers(XmlReader r)
         {
-            string packetName = r["name"];
-
             string memberCode = "";
             string readCode = "";
             string writeCode = "";
@@ -178,39 +173,31 @@ namespace PacketGenerator
 
         public static string ToMemberType(string memberType)
         {
-            switch (memberType)
+            return memberType switch
             {
-                case "bool":
-                    return "ToBoolean";
-                case "short":
-                    return "ToInt16";
-                case "ushort":
-                    return "ToUInt16";
-                case "int":
-                    return "ToInt32";
-                case "long":
-                    return "ToInt64";
-                case "float":
-                    return "ToSingle";
-                case "double":
-                    return "ToDouble";
-                default:
-                    return "";
-            }
+                "bool" => "ToBoolean",
+                "short" => "ToInt16",
+                "ushort" => "ToUInt16",
+                "int" => "ToInt32",
+                "long" => "ToInt64",
+                "float" => "ToSingle",
+                "double" => "ToDouble",
+                _ => "",
+            };
         }
 
         public static string FirstCharToUpper(string input)
         {
             if (string.IsNullOrEmpty(input))
                 return "";
-            return input[0].ToString().ToUpper() + input.Substring(1);
+            return input[0].ToString().ToUpper() + input[1..];
         }
 
         public static string FirstCharToLower(string input)
         {
             if (string.IsNullOrEmpty(input))
                 return "";
-            return input[0].ToString().ToLower() + input.Substring(1);
+            return input[0].ToString().ToLower() + input[1..];
         }
     }
 }

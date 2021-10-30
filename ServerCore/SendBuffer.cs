@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ServerCore
 {
     public class SendBufferHelper
     {
-        public static ThreadLocal<SendBuffer> CurrentBuffer = new ThreadLocal<SendBuffer>(() => { return null; });
+        public static ThreadLocal<SendBuffer> CurrentBuffer = new(() => { return null; });
 
         public static int ChunkSize { get; set; } = 4096 * 100;
 
@@ -32,7 +28,7 @@ namespace ServerCore
 
     public class SendBuffer
     {
-        byte[] buffer;
+        readonly byte[] buffer;
         int usedSize = 0;
 
         public int FreeSize { get { return buffer.Length - usedSize; } }
@@ -52,7 +48,7 @@ namespace ServerCore
 
         public ArraySegment<byte> Close(int usedSize)
         {
-            ArraySegment<byte> segment = new ArraySegment<byte>(buffer, this.usedSize, usedSize);
+            ArraySegment<byte> segment = new(buffer, this.usedSize, usedSize);
             this.usedSize += usedSize;
             return segment;
         }

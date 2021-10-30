@@ -1,6 +1,5 @@
 ﻿using ServerCore;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Text;
 
@@ -8,12 +7,6 @@ namespace DummyClient
 {
     class ServerSession : Session
     {
-        //static unsafe void ToBytes(byte[] array, int offset, ulong value)
-        //{
-        //    fixed (byte* ptr = &array[offset])
-        //        *(ulong*)ptr = value;
-        //}
-
         public override void OnConnected(EndPoint endPoint)
         {
             Console.WriteLine($"OnConnected : {endPoint}");
@@ -27,12 +20,9 @@ namespace DummyClient
             packet.skills.Add(new C_PlayerInfoReq.Skill() { id = 401, level = 4, duration = 6f });
 
             // 보낸다.
-            //for (int i = 0; i < 5; ++i)
-            {
-                ArraySegment<byte> s = packet.Write();
-                if (s != null)
-                    Send(s);
-            }
+            ArraySegment<byte> s = packet.Write();
+            if (s != null)
+                Send(s);
         }
 
         public override void OnDisconnected(EndPoint endPoint)
@@ -52,5 +42,4 @@ namespace DummyClient
             Console.WriteLine($"Transferred bytes : {numOfBytes}");
         }
     }
-
 }

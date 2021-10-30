@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ServerCore
 {
@@ -15,10 +11,10 @@ namespace ServerCore
         public void Connect(IPEndPoint endPoint, Func<Session> sessionFactory)
         {
             // 휴대폰 설정
-            Socket socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            Socket socket = new(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             this.sessionFactory = sessionFactory;
 
-            SocketAsyncEventArgs args = new SocketAsyncEventArgs();
+            SocketAsyncEventArgs args = new();
             args.Completed += OnConnectCompleted;
             args.RemoteEndPoint = endPoint;
             args.UserToken = socket;
@@ -28,8 +24,7 @@ namespace ServerCore
 
         void RegisterConnect(SocketAsyncEventArgs args)
         {
-            Socket socket = args.UserToken as Socket;
-            if (socket == null)
+            if (args.UserToken is not Socket socket)
                 return;
 
             bool pending = socket.ConnectAsync(args);

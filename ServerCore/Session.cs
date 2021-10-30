@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ServerCore
 {
@@ -46,13 +43,11 @@ namespace ServerCore
     {
         Socket socket;
         int disconnected = 0;
-
-        RecvBuffer recvBuffer = new RecvBuffer(1024);
-
-        object _lock = new object();
-        Queue<ArraySegment<byte>> sendQueue = new Queue<ArraySegment<byte>>();
-        List<ArraySegment<byte>> pendingList = new List<ArraySegment<byte>>();
-        SocketAsyncEventArgs sendArgs = new SocketAsyncEventArgs();
+        readonly RecvBuffer recvBuffer = new(1024);
+        readonly object _lock = new();
+        readonly Queue<ArraySegment<byte>> sendQueue = new();
+        readonly List<ArraySegment<byte>> pendingList = new();
+        readonly SocketAsyncEventArgs sendArgs = new();
 
         public abstract void OnConnected(EndPoint endPoint);
         public abstract int OnRecv(ArraySegment<byte> buffer);
