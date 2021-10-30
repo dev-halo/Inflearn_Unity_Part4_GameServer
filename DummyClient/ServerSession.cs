@@ -18,13 +18,13 @@ namespace DummyClient
         {
             Console.WriteLine($"OnConnected : {endPoint}");
 
-            PlayerInfoReq packet = new PlayerInfoReq() { playerId = 1001, name = "Halo" };
-            var skill = new PlayerInfoReq.Skill() { id = 101, level = 1, duration = 3f };
-            skill.attributes.Add(new PlayerInfoReq.Skill.Attribute() { att = 77 });
+            C_PlayerInfoReq packet = new C_PlayerInfoReq() { playerId = 1001, name = "Halo" };
+            var skill = new C_PlayerInfoReq.Skill() { id = 101, level = 1, duration = 3f };
+            skill.attributes.Add(new C_PlayerInfoReq.Skill.Attribute() { att = 77 });
             packet.skills.Add(skill);
-            packet.skills.Add(new PlayerInfoReq.Skill() { id = 201, level = 2, duration = 4f });
-            packet.skills.Add(new PlayerInfoReq.Skill() { id = 301, level = 3, duration = 5f });
-            packet.skills.Add(new PlayerInfoReq.Skill() { id = 401, level = 4, duration = 6f });
+            packet.skills.Add(new C_PlayerInfoReq.Skill() { id = 201, level = 2, duration = 4f });
+            packet.skills.Add(new C_PlayerInfoReq.Skill() { id = 301, level = 3, duration = 5f });
+            packet.skills.Add(new C_PlayerInfoReq.Skill() { id = 401, level = 4, duration = 6f });
 
             // 보낸다.
             //for (int i = 0; i < 5; ++i)
