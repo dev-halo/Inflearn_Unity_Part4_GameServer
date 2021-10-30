@@ -9,7 +9,7 @@ namespace Server
 {
     class Program
     {
-        static Listener listener = new Listener();
+        static List listener = new List();
 
         static void Main(string[] args)
         {
