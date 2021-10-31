@@ -17,20 +17,17 @@ using System.Collections.Generic;
 class PacketManager
 {{
     #region Singleton
-    static PacketManager instance;
-    public static PacketManager Instance
-    {{
-        get
-        {{
-            if (instance == null)
-                instance = new PacketManager();
-            return instance;
-        }}
-    }}
+    static readonly PacketManager instance = new();
+    public static PacketManager Instance {{ get {{ return instance; }} }}
     #endregion
 
-    Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>> onRecv = new Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>>();
-    Dictionary<ushort, Action<PacketSession, IPacket>> handler = new Dictionary<ushort, Action<PacketSession, IPacket>>();
+    PacketManager()
+    {{
+        Register();
+    }}
+
+    readonly Dictionary<ushort, Action<PacketSession, ArraySegment<byte>>> onRecv = new();
+    readonly Dictionary<ushort, Action<PacketSession, IPacket>> handler = new();
 
     public void Register()
     {{
@@ -46,17 +43,15 @@ class PacketManager
         ushort id = BitConverter.ToUInt16(buffer.Array, buffer.Offset + count);
         count += 2;
 
-        Action<PacketSession, ArraySegment<byte>> action = null;
-        if (onRecv.TryGetValue(id, out action))
+        if (onRecv.TryGetValue(id, out Action<PacketSession, ArraySegment<byte>> action))
             action.Invoke(session, buffer);
     }}
 
     void MakePacket<T>(PacketSession session, ArraySegment<byte> buffer) where T : IPacket, new()
     {{
-        T pkt = new T();
+        T pkt = new();
         pkt.Read(buffer);
-        Action<PacketSession, IPacket> action = null;
-        if (handler.TryGetValue(pkt.Protocol, out action))
+        if (handler.TryGetValue(pkt.Protocol, out Action<PacketSession, IPacket> action))
             action.Invoke(session, pkt);
     }}
 }}";
