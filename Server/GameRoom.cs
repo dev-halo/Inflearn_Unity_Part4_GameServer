@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Server
 {
     class GameRoom
     {
-        List<ClientSession> sessions = new List<ClientSession>();
-        object _lock = new();
+        readonly List<ClientSession> sessions = new();
+        readonly object _lock = new();
 
         public void Broadcast(ClientSession session, string chat)
         {
