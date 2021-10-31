@@ -7,6 +7,7 @@ namespace Server
     class Program
     {
         static readonly List listener = new();
+        public static GameRoom Room = new GameRoom();
 
         static void Main(string[] args)
         {
@@ -18,7 +19,7 @@ namespace Server
             IPAddress ipAddr = ipHost.AddressList[0];
             IPEndPoint endPoint = new(ipAddr, 7777);
 
-            listener.Init(endPoint, () => { return new ClientSession(); });
+            listener.Init(endPoint, () => { return SessionManager.Instance.Generate(); });
             Console.WriteLine("Listening...");
 
             while (true)
