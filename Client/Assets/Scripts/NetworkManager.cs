@@ -41,11 +41,11 @@ public class NetworkManager : MonoBehaviour
         {
             yield return new WaitForSeconds(3f);
 
-            C_Chat chatPacket = new C_Chat();
-            chatPacket.chat = "Hello Unity !";
-            ArraySegment<byte> segment = chatPacket.Write();
+            //C_Chat chatPacket = new C_Chat();
+            //chatPacket.chat = "Hello Unity !";
+            //ArraySegment<byte> segment = chatPacket.Write();
 
-            session.Send(segment);
+            //session.Send(segment);
         }
     }
 }
