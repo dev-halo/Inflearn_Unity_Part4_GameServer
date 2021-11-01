@@ -8,10 +8,20 @@ namespace Server
     {
         readonly List<ClientSession> sessions = new();
         readonly JobQueue jobQueue = new();
+        readonly List<ArraySegment<byte>> pendingList = new();
 
         public void Push(Action job)
         {
             jobQueue.Push(job);
+        }
+
+        public void Flush()
+        {
+            foreach (ClientSession s in sessions)
+                s.Send(pendingList);
+
+            Console.WriteLine($"Flushed {pendingList.Count} items");
+            pendingList.Clear();
         }
 
         public void Broadcast(ClientSession session, string chat)
@@ -23,8 +33,7 @@ namespace Server
             packet.chat = $"{chat} I am {packet.playerId}";
             ArraySegment<byte> segment = packet.Write();
 
-            foreach (ClientSession s in sessions)
-                s.Send(segment);
+            pendingList.Add(segment);
         }
 
         public void Enter(ClientSession session)
